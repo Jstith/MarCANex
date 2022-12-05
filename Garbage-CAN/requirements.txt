@@ -1,0 +1,6 @@
+Flask==2.1.2
+Flask-SQLAlchemy==2.5.1
+python-can==4.0.0
+SQLAlchemy==1.4.39
+can==0.0.0
+cryptography==38.0.3

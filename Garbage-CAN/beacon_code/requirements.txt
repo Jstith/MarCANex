@@ -1,0 +1,4 @@
+can==0.0.0
+cryptography==38.0.3
+python_can==4.0.0
+termcolor==2.1.0

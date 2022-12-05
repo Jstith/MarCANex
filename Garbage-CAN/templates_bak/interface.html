@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+    
+    {% block interface_active %}active{% endblock %}
+
+    {% block content %}
+    <!-- custom content begins -->
+    <div class="container-fluid">
+        <h3 class="text-dark mb-4">Interface Control</h3>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    {{ message }}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <p class="text-primary m-0 fw-bold">Add, Remove, and Toggle CAN Interfaces</p>
+            </div>
+            <div class="card-body">
+                
+                <form id="init1" action="/init" method="post">
+                    <input name="type" hidden="true" value="initialize.sh">
+                    <a href="javascript:{}" onclick="document.getElementById('init1').submit();" class="btn btn-primary btn-icon-split" role="button"><span class="text-white-50 icon"><i class="fas fa-arrow-right"></i></span><span class="text-white text">Initialize All</span></a>
+                </form>
+
+                <form id="init2" action="/init" method="post">
+                    <input name="type" hidden="true" value="local_can_startup.sh">
+                    <a href="javascript:{}" onclick="document.getElementById('init2').submit();" class="btn btn-primary btn-icon-split" role="button"><span class="text-white-50 icon"><i class="fas fa-arrow-right"></i></span><span class="text-white text">Initialize Single</span></a>
+                </form>
+
+                <form id="stop" action="/init" method="post">
+                    <input name="type" hidden="true" value="stop.sh">
+                    <a href="javascript:{}" onclick="document.getElementById('stop').submit();" class="btn btn-primary btn-icon-split" role="button"><span class="text-white-50 icon"><i class="fas fa-arrow-right"></i></span><span class="text-white text">Stop All Interfaces</span></a>
+                </form>
+
+                <div class="row">
+
+                    
+                    <div class="text-md-end dataTables_filter" id="dataTable_filter">
+
+                        <div class="dropdown no-arrow"><a class="btn dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" role="button">Add New Interface&nbsp;<i class="fas fa-plus fa-fw"></i></a>
+                            <div class="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in">
+                                <form id="new_interface" action="/add" method="post">
+                                    <h6 class="dropdown-header">New Message</h6><a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="me-3"></div>
+                                        <div><span class="small text-gray-500"><span style="color: rgb(58, 59, 69); margin-right: 10px;">Interface Name</span></span>
+                                            <input id="interface_name" name="new_desc" type="text"></div>
+                                    </a><a class="dropdown-item d-flex align-items-center">
+                                        <div class="me-3"></div>
+                                        <div style="display: flex; justify-content: space-between;"><span class="small text-gray-500"><span style="color: rgb(58, 59, 69); margin-right: 10px;">Bitrate</span></span>
+                                            <input id="interface_bitrate" name="new_can" type="text"></div>
+                                    </a><a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="me-3"></div>
+                                        <div><span class="small text-gray-500"><span style="color: rgb(58, 59, 69); margin-right: 10px;">FD? (True/False)</span></span>
+                                            <input id="interface_type" name="new_arb" type="text"></div>
+                                    </a><a class="dropdown-item"><a href="javascript:{}" onclick="document.getElementById('new_item').submit();" class="btn btn-success btn-icon-split" role="button"><span class="text-white-50 icon"><i class="fas fa-check"></i></span><span class="text-white text">Add New Interface</span></a></a>
+                                </form>
+                            </div>
+                        </div><label class="form-label"></label>
+                    </div>
+                    </form>
+                </div>
+                <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
+                    <table class="table my-0" id="dataTable">
+                        <thead>
+                            <tr>
+                                <input id="search_holder" type="hidden" name="search_string" value="">
+                                <input id="filter_holder" type="hidden" name="filter_type" value="">
+
+                                <th><a href="#" id="message_desc" style="text-decoration: none;">Interface Name</a></th>
+                                <th><a href="#" id="message_desc" style="text-decoration: none;">Bitrate</a></th>
+                                <th><a href="#" id="message_desc" style="text-decoration: none;">CAN Type</a></th>
+                                <th><a href="#" id="message_desc" style="text-decoration: none;">Initialize</a></th>
+                                <th><a href="#" id="message_desc" style="text-decoration: none;">Shut Down</a></th>
+                                <th><a href="#" id="message_desc" style="text-decoration: none;">Remove</a></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            {% if data %}
+                                {% for entry in data %}
+                                    <tr onclick="" style="cursor: pointer;" onmouseover="this.style.backgroundColor='#d1d3e2'" onmouseleave="this.style.backgroundColor='#00000000'">
+                                    
+                                        <td>{{ entry.interface_name }}</td>
+                                        <td>{{ entry.interface_bitrate }}</td>
+                                        <td>{{ entry.interface_type }}</td>          
+                                    </tr>    
+                                {% endfor %}
+                            {% endif %}  
+
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td><strong>Interface Name</strong></td>
+                                <td><strong>Bitrate</strong></td>
+                                <td><strong>CAN Type</strong></td>
+                                <td><strong>Initialize</strong></td>
+                                <td><strong>Shut Down</strong></td>
+                                <td><strong>Remove</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+    <!-- End of custom content-->

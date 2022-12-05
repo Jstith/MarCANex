@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+    
+    {% block table_active %}active{% endblock %}
+
+    {% block content %}
+    <!-- custom content begins -->
+    <div class="container-fluid">
+        <h3 class="text-dark mb-4">Known CAN Messages</h3>
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <p class="text-primary m-0 fw-bold">CAN Messages from the Mach-E</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <form action="table" method="get">
+                        <div class="col-md-6 text-nowrap">
+                            <div class="input-group">
+                                <input type="search" class="form-control form-control-sm" aria-controls="dataTable" placeholder="Search" id="searchy" name="search_string", value="{{ search_string }}">
+                                <button class="btn btn-primary py-0" type="submit"><i class="fas fa-search"></i></button>
+                            </div>
+                    </form>
+                    </div>
+                    
+                    <div class="text-md-end dataTables_filter" id="dataTable_filter">
+                        <div class="dropdown no-arrow"><a class="btn dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" role="button">Add New Message&nbsp;<i class="fas fa-plus fa-fw"></i></a>
+                            <div class="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in">
+                                <form id="new_item" action="/add" method="post">
+                                    <h6 class="dropdown-header">New Message</h6>
+                                    
+                                    
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="me-3"></div>
+                                        <div><span class="small text-gray-500"><span style="color: rgb(58, 59, 69); margin-right: 10px;">Description</span></span>
+                                            <input id="new_desc" name="new_desc" type="text"></div>
+                                    </a>
+                                    
+                                    <a class="dropdown-item d-flex align-items-center">
+                                        <div class="me-3"></div>
+                                        <div style="display: flex; justify-content: space-between;"><span class="small text-gray-500"><span style="color: rgb(58, 59, 69); margin-right: 10px;">CAN Interface</span></span>
+                                            <input id="new_can" name="new_can" type="text"></div>
+                                    </a>
+                                    
+                                    
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="me-3"></div>
+                                        <div><span class="small text-gray-500"><span style="color: rgb(58, 59, 69); margin-right: 10px;">Arbitration ID</span></span>
+                                            <input id="new_arb" name="new_arb" type="text"></div>
+                                    </a>
+                                    
+                                    
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="me-3"></div>
+                                        <div><span class="small text-gray-500"><span style="color: rgb(58, 59, 69); margin-right: 10px;">Data String</span></span>
+                                            <input id="new_data" name="new_data" type="text"></div>
+                                    </a>
+                                    
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="me-3"></div>
+                                        <div><span class="small text-gray-500"><span style="color: rgb(58, 59, 69); margin-right: 10px;">Looping?</span></span>
+                                            <input id="new_data" name="new_looping" type="text"></div>
+                                    </a>
+                                    
+                                    <a class="dropdown-item"><a href="javascript:{}" onclick="document.getElementById('new_item').submit();" class="btn btn-success btn-icon-split" role="button"><span class="text-white-50 icon"><i class="fas fa-check"></i></span><span class="text-white text">Add New Message</span></a></a>
+                                </form>
+                            </div>
+                        </div><label class="form-label"></label>
+                    </div>
+                    </form>
+                </div>
+                <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
+                    <table class="table my-0" id="dataTable">
+                        <thead>
+                            <tr>
+                                <form id="sort_form" method="get" action="table">
+                                <input id="search_holder" type="hidden" name="search_string" value="">
+                                <input id="filter_holder" type="hidden" name="filter_type" value="">
+
+                                <th><a href="#" id="message_desc" onclick="submitForm(this.id)" type="button" style="text-decoration: none;">Message Description {% if sort_col == 'message_desc' %} <strong class="fas fa-sort-{% if sort_direction %}amount-up-alt{% else %}amount-down{% endif %}" style="margin-left: 5px;"></strong> {% else %} <i style="margin-left: 16px;"></i>{% endif %}</a></th>
+                                <th><a href="#" id="can_interface" onclick="submitForm(this.id)" type="button" style="text-decoration: none;">CAN Interface {% if sort_col == 'can_interface' %} <strong class="fas fa-sort-{% if sort_direction %}amount-up-alt{% else %}amount-down{% endif %}" style="margin-left: 5px;"></strong> {% else %} <i style="margin-left: 16px;"></i>{% endif %}</a></th>
+                                <th><a href="#" id="arb_id" onclick="submitForm(this.id)" type="button" style="text-decoration: none;">Arb-ID {% if sort_col == 'arb_id' %} <strong class="fas fa-sort-{% if sort_direction %}amount-up-alt{% else %}amount-down{% endif %}" style="margin-left: 5px;"></strong> {% else %} <i style="margin-left: 16px;"></i>{% endif %}</a></th>
+                                <th><a href="#" id="data_string" onclick="submitForm(this.id)" type="button" style="text-decoration: none;">Data String {% if sort_col == 'data_string' %} <strong class="fas fa-sort-{% if sort_direction %}amount-up-alt{% else %}amount-down{% endif %}" style="margin-left: 5px;"></strong> {% else %} <i style="margin-left: 16px;"></i>{% endif %}</a></th>
+                                <th><a href="#" id="id" onclick="submitForm(this.id)" type="button" style="text-decoration: none;">Message ID {% if sort_col == 'id' %} <strong class="fas fa-sort-{% if sort_direction %}amount-up-alt{% else %}amount-down{% endif %}" style="margin-left: 5px;"></strong> {% else %} <i style="margin-left: 16px;"></i>{% endif %}</a></th>
+                                </form>
+                                <script type="text/javascript">
+                                    function submitForm(a) {
+                                        document.getElementById("search_holder").value = document.getElementById("searchy").value;
+                                        document.getElementById("filter_holder").value = a;
+                                        document.getElementById("sort_form").submit();
+                                    }
+                                </script>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            {% if data %}
+                                {% for entry in data %}
+                                    <tr onclick="document.location='inspect/{{ entry.id }}';" style="cursor: pointer;" onmouseover="this.style.backgroundColor='#d1d3e2'" onmouseleave="this.style.backgroundColor='#00000000'">
+                                    
+                                        <td>{{ entry.message_desc }}</td>
+                                        <td>{{ entry.can_interface }}</td>
+                                        <td>{{ ('%.3x' % entry.arb_id)|upper }}</td>
+                                        <td>{{ ('%.16x' % entry.data_string|int)|upper }}</td>
+                                        <td>{{ ('%.3d' % entry.id) }}</td>
+                                    
+                                    </tr>    
+                                {% endfor %}
+                            {% endif %}  
+
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td><strong>Message Description</strong></td>
+                                <td><strong>CAN Interface</strong></td>
+                                <td><strong>Arb-ID</strong></td>
+                                <td><strong>Data String</strong></td>
+                                <td><strong>Message ID</strong></td>
+                                
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+    <!-- End of custom content-->

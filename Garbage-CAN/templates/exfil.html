@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+    
+    {% block exfil_active %}active{% endblock %}
+    
+    {% block content %}
+
+    <div class="container-fluid">
+        <h3 class="text-dark mb-4">Exfiltrate CAN Messages</h3>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                        {{ message }}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <div class="row mb-3">
+            <div class="card mb-3"></div>
+            <div class="col-lg">
+                <div class="row">
+                    <div class="col">
+                        
+                        
+                            <div class="card shadow mb-3">
+                                <div class="card-header py-3">
+                                    <h6 class="text-primary m-0 fw-bold">Returned Data:</h6>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="card-body">
+                                            <pre>{% if data %}{{ data }}{% endif %}</pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                        <div class="card shadow mb-3">
+                            <div class="card-header py-3">
+                                <h6 class="text-primary m-0 fw-bold">Exfil Settings:</h6>
+                            </div>
+                            <div class="card-body">
+                    
+                                <div class="row">
+                                    <div class="col">
+                                        <form id="exfil_can" action="/exfil", method="post">
+                                            <div class="mb-3"><label class="form-label" for="d_can"><strong>CAN Interface (Enter "any" for all)</strong></label>
+                                            <input class="form-control" type="text" id="d_can" name="d_can" value=""></div>
+                                            <div class="mb-3"><label class="form-label" for="d_arb"><strong>Arbitration ID</strong></label>
+                                            <input class="form-control" type="text" id="d_arb" name="d_arb" value=""></div>
+                                            <div class="mb-3"><label class="form-label" for="d_mask"><strong>Arbitration ID Mask (Enter "000" for all)</strong></label>
+                                            <input class="form-control" type="text" id="d_mask" name="d_mask" value=""></div>
+                                            <div class="mb-3"><label class="form-label" for="d_time"><strong>Length of Capture (Seconds)</strong></label>
+                                            <input class="form-control" type="text" id="d_time" name="d_time" value=""></div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <script type="text/javascript">
+                                        function exfilCan() {
+                                            document.getElementById('d_can').value = "test";
+                                            document.getElementById('exfil_can').submit();
+                                        }
+                                    </script>
+
+                                    <script type="text/javascript">
+                                        function sendToCan() {
+                                            document.getElementById('interface_place').value = document.getElementById('m_can').value;
+                                            document.getElementById('arb_place').value = document.getElementById('m_arb').value;
+                                            document.getElementById('data_place').value = document.getElementById('m_data').value
+                                            document.getElementById('send_can').submit();
+                                        }
+                                    </script>
+
+                                    <a href="javascript:{}" onclick="document.getElementById('exfil_can').submit()" class="btn btn-link d-block btn-facebook w-100" role="button" style="text-decoration: none;">Launch Exfiltration</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card shadow mb-5"></div>
+    </div>
+
+    {% endblock %}

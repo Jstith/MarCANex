@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Login - INL - USCGA</title>
+    <link rel="icon" type="image/gif" sizes="400x400" href="{{ url_for('static', filename='assets/img/art/dumpster_fire.gif') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/Nunito.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/fonts/fontawesome-all.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/untitled.css') }}">
+</head>
+
+<body class="bg-gradient-primary">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-9 col-lg-12 col-xl-10">
+                <div class="card shadow-lg o-hidden border-0 my-5">
+                    <div class="card-body p-0">
+                        <div class="row">
+                            <div class="col-lg-6 d-none d-lg-flex"><img id="login-image" src="{{ url_for('static', filename='assets/img/art/dumpster_fire.gif') }}" style="height: 90%;position: absolute;margin: 0;left: 10%;"></div>
+                            <div class="col-lg-6">
+                                <div class="p-5">
+                                    <div class="text-center">
+                                        <h4 class="text-dark mb-4">The Garbage-CAN</h4>
+                                        <p>Throwing <strong>Gargabe</strong> in the <strong>CAN</strong>!</p>
+                                    </div>
+                                    <form class="user", action="login", method="post">
+                                        <div class="mb-3"><input class="form-control form-control-user" type="text" id="inputUser" placeholder="Username" name="username"></div>
+                                        <div class="mb-3"><input class="form-control form-control-user" type="password" id="exampleInputPassword" placeholder="Password" name="password"></div>
+                                        <div class="mb-3">
+                                            <div class="custom-control custom-checkbox small"></div>
+                                        </div><button class="btn btn-primary d-block btn-user w-100" type="submit">Login</button>
+                                        <hr>
+                                    </form>
+                                    {% with messages = get_flashed_messages() %}
+                                        {% if messages %}
+                                            {% for message in messages %}
+                                                {{ message }}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endwith %}
+                                    <div class="text-center"></div>
+                                    <div class="text-center"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-grow-1 login-image" style="background-image: url(&quot;assets/img/art/dumpster_fire.gif&quot;);"></div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='assets/bootstrap/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/js/theme.js') }}"></script>
+</body>
+
+</html>

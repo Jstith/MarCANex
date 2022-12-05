@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+                
+    {% block command_active %}active{% endblock %}
+
+                <!-- Custom content for page begins -->
+                {% block content %}
+                <div class="container-fluid">
+                    <h3 class="text-dark mb-4">Custom CAN Message<b></b></h3>
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    <div class="row mb-3">
+                        <div class="card mb-3"></div>
+                        <div class="col-lg">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card shadow mb-3">
+                                        <div class="card-header py-3">
+                                            <h6 class="text-primary m-0 fw-bold">Message Data:</h6>
+                                            <p class="text-primary m-0 fw-bold"></p>
+                                        </div>
+                                        <script type="text/javascript">
+                                            function enableDataarea() {
+                                                var a = document.getElementById("m_desc");
+                                                a.removeAttribute("readonly");
+
+                                                var b = document.getElementById("m_can");
+                                                b.removeAttribute("readonly");
+
+                                                var c = document.getElementById("m_arb");
+                                                c.removeAttribute("readonly");
+
+                                                var d = document.getElementById("m_data");
+                                                d.removeAttribute("readonly");
+
+                                                var y = document.getElementById("submit_data");
+                                                y.removeAttribute("disabled");
+                                                document.getElementById("edit_data").disabled = true;
+                                                document.getElementById("edit_desc").disabled = true;
+                                            }
+                                        </script>
+                                        <div class="card-body">
+                                
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label" for="m_can"><strong>CAN Interface</strong></label>
+                                                        <input class="form-control" type="text" id="m_can" name="can_interface" value=""></div>
+                                                        <div class="mb-3"><label class="form-label" for="m_arb"><strong>Arbitration ID</strong></label>
+                                                        <input class="form-control" type="text" id="m_arb" name="arb_id" value=""></div>
+                                                        <div class="mb-3"><label class="form-label" for="m_data"><strong>Data String</strong></label>
+                                                        <input class="form-control" type="text" id="m_data" name="data_string" value=""></div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    
+
+                                                    <script type="text/javascript">
+                                                        function sendToCan() {
+                                                            document.getElementById('interface_place').value = document.getElementById('m_can').value;
+                                                            document.getElementById('arb_place').value = document.getElementById('m_arb').value;
+                                                            document.getElementById('data_place').value = document.getElementById('m_data').value
+                                                            document.getElementById('send_can').submit();
+                                                        }
+                                                    </script>
+                        
+                                                    <form id="send_can" action="/send/custom" method="post">
+                                                        <input id="interface_place" name="interface_place" type="hidden">
+                                                        <input id="arb_place" name="arb_place" type="hidden">
+                                                        <input id="data_place" name="data_place" type="hidden">
+                                                        <!--<input id="message_id_place" name="message_id_place" type="hidden">-->
+                                                        <a href="javascript:sendToCan()" class="btn btn-link d-block btn-google w-100" role="button" style="text-decoration: none;">Send Command to CAN</a>
+                                                    </form>
+                                                    <a class="btn btn-link d-block btn-facebook w-100" role="button" style="margin-top: 20px; text-decoration: none;">Send Command to Composer (TBD)</a>
+                                                
+                                                   
+                                                </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card shadow mb-5"></div>
+                </div>
+                {% endblock %}
+                <!-- Custom content for page ends -->

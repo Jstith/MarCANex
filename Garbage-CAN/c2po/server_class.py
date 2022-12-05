@@ -1,0 +1,188 @@
+import socket
+from cryptography.fernet import Fernet
+import json
+import random
+import time
+from art import tprint
+import threading
+from threading import Thread
+
+#Client code
+from client_class import *
+
+from termcolor import colored
+
+import os,random
+from pathlib import Path
+
+class Server:
+    lock = threading.Lock()
+    nodes={}
+    attacks = {}
+    ServerSideSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sym_key = open('sym.key', 'rb').read()
+    fernet = Fernet(sym_key)
+    #initialzing shit for c2 shit
+    def __init__(self,port,client_listener):
+        self.host = "0.0.0.0"
+        self.port = port
+        self.addr = (self.host, self.port)
+        self.client_listener = client_listener
+
+
+    #Make this prettier
+    #Also can i just say that i love thread locks for making this code work :D <3
+    def viewNodes(self):
+        self.lock.acquire()
+        print(self.nodes)
+        self.lock.release()
+    def updateNodes(self,nodeID,dataList):
+        self.lock.acquire()
+        self.nodes[nodeID] = dataList
+        self.lock.release()
+    # def viewAttacks(self):
+    #     self.lock.acquire()
+    #     print(self.attacks)
+    #     self.lock.release()
+    # def removeAttack(self,attackID):
+    #     self.lock.acquire()
+    #     for attacks in self.attacks.keys():
+    #         if(ip in self.attacks[attacks] and )
+    def initalize(self):
+        fname = random.choice((os.listdir('./terminalArt/')))
+        data_folder = Path("terminalArt/")
+        file_to_open = data_folder / fname
+        print(file_to_open.read_text())
+        self.lock.acquire()
+        print(colored(f"Server> Initialising!\nServer> Listening Port: {self.port}\n","green"))
+        print(colored('Server> C-2PO Server is listening..',"green"))
+        self.ServerSideSocket.bind((self.host, self.port))
+        self.ServerSideSocket.listen(10)
+        self.lock.release()
+
+
+        return
+    
+    def send(self,ip,source_port,destination_port,data):
+
+        self.lock.acquire()
+        print(colored(f"Server> Attempting to send to {ip}:{destination_port} from {source_port}...","blue"))
+        portSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
+        portSocket.bind((self.host,source_port)) #random port on 0.0.0.0
+        portSocket.connect((ip,destination_port)); #usually port 4000
+        portSocket.sendall(self.fernet.encrypt(json.dumps(data).encode()))
+        portSocket.close()
+        self.lock.release()
+        print(colored("Server> Maybe sent?","blue"))
+
+    def encryptJSON(self,message):
+        return self.fernet.encrypt(json.dumps(message).encode())
+
+    def decryptJSON(self, message): #i had jsut added conn.close and locks and that made thigns stop working idk
+        return self.fernet.decrypt(message).decode("UTF-8").strip()
+#FINISH THIS THEN WORK ON SEDNING
+    def recieve(self,listening_port):
+        portSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
+        portSocket.bind((self.host,listening_port)) #random port on 0.0.0.0
+        portSocket.listen(2)
+        print(colored(f"Server> Opened port on {listening_port}","blue"))
+        conn, address = portSocket.accept()        
+
+        print(colored(f"Server> Recieved connection from {address}","green"))
+        data = conn.recv(1024)
+
+        print(colored(f"Server> {self.decryptJSON(data)}","green"))
+        conn.sendall(data)
+        conn.close()
+        portSocket.close()
+
+    def addAttack(self,ip,port):
+        self.lock.acquire()
+        attackID = time.time()
+        data = []
+        data.append(ip)
+        data.append(port)
+        self.attacks[attackID] = data
+        self.lock.release()
+
+    def processJson(self,jsonObject,client_ip): #Will handle recieving the json data and the appropriate action for inits and ACKS.
+        if(jsonObject['message'] == "INIT?"):
+            port_assigned = random.randint(10000,65000)
+            node_data = [client_ip,port_assigned]
+
+            init_response={
+                "message":"INIT",
+                "data":"NONE"
+            }
+            port_agreement={
+                "message":"PORT SET",
+                "data":str(port_assigned)
+            }
+    
+            self.lock.acquire()
+            nodeID = len(self.nodes)+1
+            self.lock.release()  
+            dataList = []
+            dataList.append(client_ip)
+            dataList.append(port_assigned)
+            self.updateNodes(str(nodeID),dataList)
+            print(colored(f"Server> Creating new node.\nServer> NodeID: {nodeID} Connection Info: {str(node_data)}","green"))
+            self.send(client_ip,port_assigned,self.client_listener,init_response)
+             #Connect to the port 4000 on client
+            self.send(client_ip,port_assigned,self.client_listener,port_agreement)
+            self.recieve(port_assigned)
+
+            return
+
+    def listening_nodes(self):
+        
+        while True:
+            Client, address = self.ServerSideSocket.accept()
+
+            if(Client):
+                nodeip = address[0]
+                nodeport = address[1]
+                print(colored('Server> Connected to: ' + nodeip + ':' + str(nodeport),"blue"))
+                # nodes_dic[address[0]]=address[1]
+                data = Client.recv(1024)
+                print(colored(f'Server> Printing data from {nodeip}:{nodeport}',"blue"))
+                print("{!r}".format(data))
+                if data:
+                    try:
+                        jsonObject = json.loads(self.fernet.decrypt(data).decode("UTF-8").strip())
+                        print(colored(f"Server> Decrypted data:\n {jsonObject}","green"))
+                        self.processJson(jsonObject,nodeip)
+                        Client.close()
+                    except:
+                        print(self.decryptJSON(data))
+                        print(colored("Server> Could not decrypt data, closing socket","red"))
+                        Client.close()
+
+                else:
+                    print(colored('no data from', address[0],"red"))
+                    break
+
+
+
+def main():
+    server_port = 2023
+    client_port = 4000
+
+    jsonTemplates = json.load(open("message_templates.json"))
+    
+    server = Server(server_port,client_port) 
+    server.initalize()
+    
+
+    client = Client(server,jsonTemplates)
+    serverThread = Thread(target=server.listening_nodes,args=()) #Wehn you make a thread/process dont have () in the target... that took way too long.
+    clientThread = Thread(target=client.menu,args=()) #Needs to be a thread not a process otherwise the menu wont work
+    clientThread.start()
+    serverThread.start()
+    while True:
+       pass
+
+    ServerSideSocket.close()
+
+if __name__ == '__main__':
+    main()
