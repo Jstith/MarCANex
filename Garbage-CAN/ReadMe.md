@@ -16,11 +16,11 @@ Install python and the necessary pip libraries.
 pip install -r requirements.txt
 ```
 
-Set the necessary flask environment variables and run flask to get Garbage-Can running on localhost:5000.
+Set the necessary flask environment variables and run flask to get Garbage-Can running on all interfaces on port 5000. If you want to only expose the webapp locally or to a certain interface, use `--host=127.0.0.1`.
 
 ```
 export FLASK_APP=.
-flask run
+flask run --host=0.0.0.0
 ```
 
 ## Current Features
