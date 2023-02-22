@@ -1,8 +1,8 @@
 # Garbage-CAN
 
-![logo](../.resources/dumpster_fire.gif)
+*A tool for CAN analysis on the Mach-E*
 
-*Commanding MarCANex Nodes to throw Garbage at the CAN!*
+![logo](login.png)
 
 ## Software Stack
 
@@ -16,25 +16,25 @@ Install python and the necessary pip libraries.
 pip install -r requirements.txt
 ```
 
-Set the necessary flask environment variables and run flask to get Garbage-Can running on all interfaces on port 5000. If you want to only expose the webapp locally or to a certain interface, use `--host=127.0.0.1`.
+Set the necessary flask environment variables and run flask to get Garbage-Can running on localhost:5000.
 
 ```
+export PYTHONPATH="${PYTHONPATH}:/home/noah/Desktop/ARP/combined/Garbage-CAN/" (or whereever your directory is)
 export FLASK_APP=.
-flask run --host=0.0.0.0
+flask run
 ```
 
 ## Current Features
 
 * Secure password authentication / sessions
-* List known attacks
+* List known CAN commands
 * Query list for certain values
     * search strings
     * filter values
 * Add/Remove/Edit commands
-* Interact with nodes
 
 ## Future Goals
 
-* More robust node control
+* Send commands to CAN from app
 * Craft multi-command injects
 * mass database adds with CSV

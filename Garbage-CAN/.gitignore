@@ -1,0 +1,7 @@
+.venv/*
+bootstrap-export/*
+# *.sqlite3*
+*.bsdesign
+*__pycache__*
+sym.key
+*.vscode*

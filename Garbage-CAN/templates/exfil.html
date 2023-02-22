@@ -50,13 +50,27 @@
                                             <input class="form-control" type="text" id="d_mask" name="d_mask" value=""></div>
                                             <div class="mb-3"><label class="form-label" for="d_time"><strong>Length of Capture (Seconds)</strong></label>
                                             <input class="form-control" type="text" id="d_time" name="d_time" value=""></div>
+                                            <input class="form-control" type="text" id="node_place" name="node_place" value="" hidden="true"></div>
+
                                         </form>
                                     </div>
                                 </div>
+                                <p>"{{current_nodes}}" </p>
+
+                                <select name="node_form",id="node_form">
+                                    {% for node in current_nodes %}
+                                        <option id="node_form_selection" value="{{ node }}" SELECTED>{{ node }}</option>
+                                    {% endfor %}     
+                                </select>
+
+
                                 <div class="mb-3">
                                     <script type="text/javascript">
                                         function exfilCan() {
-                                            document.getElementById('d_can').value = "test";
+                                            console.log("In this function")
+                                            var sel = document.getElementById("node_form_selection").value;
+                                            console.log(sel)
+                                            document.getElementById('node_place').value = sel;
                                             document.getElementById('exfil_can').submit();
                                         }
                                     </script>
@@ -70,7 +84,9 @@
                                         }
                                     </script>
 
-                                    <a href="javascript:{}" onclick="document.getElementById('exfil_can').submit()" class="btn btn-link d-block btn-facebook w-100" role="button" style="text-decoration: none;">Launch Exfiltration</a>
+                                    <!-- <a href="javascript:{}" onclick="document.getElementById('exfil_can').submit()" class="btn btn-link d-block btn-facebook w-100" role="button" style="text-decoration: none;">Launch Exfiltration</a> -->
+                                    <a href="javascript:{}" onclick="exfilCan()" class="btn btn-link d-block btn-facebook w-100" role="button" style="text-decoration: none;">Launch Exfiltration</a>
+
                                 </div>
                             </div>
                         </div>

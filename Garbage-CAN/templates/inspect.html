@@ -39,6 +39,7 @@
 
                             <script type="text/javascript">
                                 function sendToCan(looping_state) {
+                                    console.log("Sending...")
                                     document.getElementById('interface_place').value = document.getElementById('m_can').value;
                                     console.log(document.getElementById('interface_place').value);
 
@@ -56,7 +57,11 @@
                                     console.log(document.getElementById('looping_place').value);
 
                                     // document.getElementById('message_id_place') = "tes{{ data.id }}";
+                                    var sel = document.getElementById("node_form_selection").value;
+                                    console.log(sel)
+                                    document.getElementById('node_place').value = sel;
                                     document.getElementById('send_can').submit();
+                                    console.log("Hopefully sent...")
 
                                 }
                             </script>
@@ -211,6 +216,7 @@
                                 <input id="arb_place" name="arb_place" type="hidden">
                                 <input id="data_place" name="data_place" type="hidden">
                                 <input id="looping_place" name="looping_place" type="hidden">
+                                <input id="node_place" name="node_place" type="hidden">
 
                                 <!-- <input id="message_id_place" name="message_id_place" type="hidden"> -->
 
@@ -265,8 +271,20 @@
                                                         <input class="form-control disabled" type="text" id="m_data" name="data_string" value="{{ ('%.16x' % data.data_string|int)|upper }}" readonly="true"></div>
                                                         <div class="mb-3"><label class="form-label" for="m_looping"><strong>Looping Attack</strong></label>
                                                         <input class="form-control disabled" type="text" id="m_looping" name="looping" value="{{ data.looping }}" readonly="true"></div> <!-- {{ True if data.looping==1 else Flase }} -->
+                                                        <form name="Item_1" action="/getLigand" method="POST">
+                                                            <label for="exampleFormControlFile2">Choose node</label>
+                                                            <p>"{{current_nodes}}" </p>
+
+                                                            <select name="node_form",id="node_form">
+                                                                {% for node in current_nodes %}
+                                                                <option id="node_form_selection" value="{{ node }}" SELECTED>{{ node }}</option>
+                                                                {% endfor %}     
+                                                            </select>
+                                                        </form>
                                                     </div>
                                                 </div>
+
+                                                    
                                                 <div class="mb-3">
                                                     <button class="btn btn-primary btn-sm" id="edit_data" onclick="enableDataarea()" style="margin-right: 10px;margin-top: 5px;">Edit Data</button>
                                                     <button class="btn btn-primary btn-sm" id="submit_data" disabled="true" type="submit" style="margin-top: 5px;">Save Changes</button>

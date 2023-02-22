@@ -81,7 +81,7 @@ def parse_command(data):
             time.sleep(1)
             ss.send_encrypted_message(request_data, config['remote_address'], config['remote_comm_port'])
 
-        elif(js['message'] == 'EXEC COMM'):
+        elif(js['message'] == 'LOOP COMM'):
             # Converts string to list in the worst way possible
             test = js['data'].strip('][').replace("'", '').split(', ')
             #print(f'check {test}')
@@ -104,7 +104,7 @@ def parse_command(data):
 
             ss.send_encrypted_message(request_data, config['remote_address'], config['remote_comm_port'])
 
-        elif(js['message'] == 'FOO COMM'):
+        elif(js['message'] == 'EXEC COMM'):
             test = js['data']
             can_response = 'SINGLE CAN EXECUTE'
             request_data = json.dumps({

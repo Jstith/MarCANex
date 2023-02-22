@@ -1,3 +1,4 @@
+#!/usr/bin/env/python3
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -76,4 +77,11 @@ class interfaces(db.Model):
     bitrate = db.Column(db.Integer)
     data_bitrate = db.Column(db.Integer)
     can_type = db.Column(db.Boolean)
+
+
+class nodes(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    name = db.Column(db.String(50))
+    description = db.Column(db.String(100))
+
     # shtutadown = db.Column(db.Boolean)

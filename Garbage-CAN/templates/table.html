@@ -8,11 +8,11 @@
         <h3 class="text-dark mb-4">Known CAN Messages</h3>
         <div class="card shadow">
             <div class="card-header py-3">
-                <p class="text-primary m-0 fw-bold">CAN Messages from the Mach-E</p>
+                <p class="text-primary m-0 fw-bold">CAN Messages for NMEA2000</p>
             </div>
             <div class="card-body">
                 <div class="row">
-                    <form action="table" method="get">
+                    <form action="" method="get">
                         <div class="col-md-6 text-nowrap">
                             <div class="input-group">
                                 <input type="search" class="form-control form-control-sm" aria-controls="dataTable" placeholder="Search" id="searchy" name="search_string", value="{{ search_string }}">
@@ -71,7 +71,7 @@
                     <table class="table my-0" id="dataTable">
                         <thead>
                             <tr>
-                                <form id="sort_form" method="get" action="table">
+                                <form id="sort_form" method="get" action="">
                                 <input id="search_holder" type="hidden" name="search_string" value="">
                                 <input id="filter_holder" type="hidden" name="filter_type" value="">
 
@@ -94,7 +94,7 @@
 
                             {% if data %}
                                 {% for entry in data %}
-                                    <tr onclick="document.location='inspect/{{ entry.id }}';" style="cursor: pointer;" onmouseover="this.style.backgroundColor='#d1d3e2'" onmouseleave="this.style.backgroundColor='#00000000'">
+                                    <tr onclick="document.location='/inspect/{{ entry.id }}';" style="cursor: pointer;" onmouseover="this.style.backgroundColor='#d1d3e2'" onmouseleave="this.style.backgroundColor='#00000000'">
                                     
                                         <td>{{ entry.message_desc }}</td>
                                         <td>{{ entry.can_interface }}</td>

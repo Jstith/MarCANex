@@ -1,0 +1,10 @@
+cffi==1.15.1
+cryptography==38.0.3
+msgpack==1.0.4
+packaging==21.3
+pycparser==2.21
+pyparsing==3.0.9
+python-can==4.0.0
+termcolor==2.1.0
+typing_extensions==4.4.0
+wrapt==1.14.1

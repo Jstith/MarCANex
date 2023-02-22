@@ -1,8 +1,8 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash,Flask
 from flask_login import login_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_, cast
-from . import db, info, interfaces
+# from test import info, interfaces,nodes
 from cmath import atan
 import os, random, pathlib
 import can
@@ -10,52 +10,52 @@ from can.message import Message
 import time
 from threading import Thread
 from time import sleep
-# from database import info, interfaces
+import json
+
+from multiprocessing import Process
+
+from . import db,info,interfaces,nodes
+# from test import db,info,interfaces,nodes
+
+import sys
+import os
+
+
+app = Flask(__name__)
+
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
+from hive.server_class import Server
+from hive.client_class import Client
+
+
+
 
 main = Blueprint('main', __name__)
 
 # Search filter statuses
 search_state = {"message_desc":True,"can_interface":True,"arb_id":True,"data_string":True,"id":True}
+startedVar = False
 
-# Dabatase Class
-# class info(db.Model): #maps to a table    
-#     #specify the columns
-#     id = db.Column(db.Integer,primary_key=True)
-#     message_desc = db.Column(db.String(50)) # db.String(<characters>)
-#     can_interface = db.Column(db.String(25))
-#     arb_id = db.Column(db.Integer) 
-#     data_string = db.Column(db.Integer)
-#     notes = db.Column(db.String(750))
-#     looping = db.Column(db.Integer)
+jsonTemplates = json.load(open("./hive/message_templates.json"))
 
-#     def __init__(self, _primary_key:int,_message_desc:str,_can_interface:str,_arb_id:int,_data_string:int,_notes:str,_looping:int):
-#         self.primary_key=_primary_key
-#         self.message_desc=_message_desc
-#         self.can_interface =_can_interface
-#         self.arb_id=_arb_id
-#         self.data_string=_data_string
-#         self.notes=_notes
-#         self.looping=_looping
-
-#     @staticmethod
-#     def insert(_primary_key,_message_desc,_can_interface,_arb_id,_data_string,_notes,_looping):
-#         newInfo = info(_primary_key,_message_desc,_can_interface,_arb_id,_data_string,_notes,_looping)
-#         db.session.add(newInfo)
-#         db.session.commit()
+server_port = 2023
+client_port = 4000
 
 
-# class interfaces(db.Model):
-#     id = db.Column(db.Integer,primary_key=True)
-#     name = db.Column(db.String(50))
-#     bitrate = db.Column(db.Integer)
-#     data_bitrate = db.Column(db.Integer)
-#     can_type = db.Column(db.Boolean)
-#     # shtutadown = db.Column(db.Boolean)
+attacks = {}
 
 # To view list of all messages
-@main.route('/table', methods=['GET'])
+@main.route('/table/', methods=['GET'])
 @login_required
 def table():
+    global startedVar
+    if(startedVar == False):
+        startedVar=True
+        t = Thread(target=start)
+        t.start()
     search_string = request.args.get('search_string')
     filter_type = request.args.get('filter_type')
 
@@ -68,7 +68,7 @@ def table():
         info.data_string.contains(search_string)
         ))
     else:
-        print("no search string")
+        # print("no search string")
         search_string = ''
         data = info.query
     
@@ -121,11 +121,19 @@ def table():
 @login_required
 def inspect(id):
     if(request.method == 'GET'):
+        print(id)
+        print("Here")
         # Populate with data based on passed ID
         data = info.query.filter(info.id == id).first()
         if(not data):
             return redirect(url_for('main.table'))
-        return render_template('inspect.html', data=data)
+        
+        Server.lock.acquire()
+        nodes = Server.nodes
+        Server.lock.release() 
+        if not nodes:
+            return render_template('inspect.html', data=data)
+        return render_template('inspect.html', data=data, current_nodes=nodes)
 
 # To add a new message
 @main.route('/add',methods=['POST'])
@@ -259,8 +267,12 @@ def canLooping(_name,_bitrate,_data_bitrate,_fd_msg,_arb_id,_data):
 
 @main.route('/send/<id>', methods=['POST'])
 @login_required
-def send(id): 
-    global looping_state
+def send(id):
+    # C2 CAN SEND
+    # global looping_state
+
+    data = info.query.filter(info.id == id).first()
+
     #assume already initalized?
     print('trying to send')
     #Get FD Status
@@ -269,69 +281,64 @@ def send(id):
     _arb_id = request.form['arb_place']
     _dataString = request.form['data_place']
     _looping = request.form['looping_place']
-
+    _node_id = request.form['node_place']
+    _node_id = str(_node_id)
+    print("node_id " +_node_id)
     print("looping =", _looping)
 
     if(_looping == "1"): #1 means global looping is on.
-        looping_state=True
+        looping_state="start"        
     else:
-        looping_state=False #not 1 means looping is off.
-    try:
-        _data = bytes.fromhex(_dataString)
-        _arb_id = int(_arb_id,16)
-        print(_arb_id)
-        print("test formatting")
+        looping_state="stop" #not 1 means looping is off.
+    # try:
+    # _data = bytes.fromhex(_dataString)
+    # _arb_id = int(_arb_id,16)
+    print(_arb_id)
+    print("test formatting")
+    
+    dataList = []
+    Server.lock.acquire()
+    dataList.append(_can_interface)
+    dataList.append(_arb_id)
+    dataList.append(_dataString)
+    dataList.append(looping_state)
+    print(jsonTemplates['loop_command'])
+    jsonCopy = jsonTemplates['loop_command']
+    jsonCopy['data'] = str(dataList)
+    print("Client> Sending: ",json.dumps(jsonCopy))
+# def send(self,ip,source_port,destination_port,data):
 
-        try:
-            print("second try")
-            obj = interfaces.query.filter(interfaces.name.contains(_can_interface)).first() #filter for interface
-            print(obj)
-            _fd_msg = obj.can_type #gather pertinant data
-            _bitrate = obj.bitrate
-            print(_bitrate)
-            _data_bitrate = obj.data_bitrate
-            _name = obj.name
-            print(_name)
-            if(_fd_msg==1):
-                 _fd_msg = True
-            else:
-                 _fd_msg = False
-            print(_fd_msg)
-            _fd_msg=False
-            print(_fd_msg)
-            
-            if(_looping == "1"): #1 means global looping is on.
-                looping_state=True
-            else:
-                looping_state=False #not 1 means looping is off.
-            looping_state = True
-            print(looping_state)
-            if(looping_state):
-                print("in here")
-                target=canLooping(_name,_bitrate,_data_bitrate,_fd_msg,_arb_id,_data)
-                print(target)
-                thread = Thread(target=canLooping(_name,_bitrate,_data_bitrate,_fd_msg,_arb_id,_data))
-                thread.start()
-                print("Thread Started")
-            else:
-                print("Send one shot can here")
-                
-        except:
-            flash("Interface not found.")
-    except:
-        flash("Enter a valid CAN data frame and Arb ID.")
+    #get that node ip and port
+    dest_ip = Server.nodes[_node_id][0]
+    source_port = Server.nodes[_node_id][1]
+    print(dest_ip,source_port)
+    print(client_port)
+    print(dest_ip)
+    print(source_port)
+    print(jsonCopy)
+    Server.lock.release()
+    
+    
+    Server.send(Server,dest_ip,source_port,client_port,jsonCopy)
+    Server.recieve(Server,source_port)    
+    
+    
+    Server.lock.acquire()
+    nodes = Server.nodes
+    Server.lock.release() 
+    if not nodes:
+        return render_template('inspect.html', data=data)
+    return render_template('inspect.html', data=data, current_nodes=nodes)
+        # print("Error sending :(")
+        # return render_template('inspect.html', data=data)
 
-        # return redirect(url_for('table'))
-    if "custom" in id:
-        return redirect(url_for('main.command'))
-    else:
-        return redirect(url_for('main.inspect',id=id))
-
+ 
 
 @main.route('/interface')
 @login_required
 def interface():
     data=interfaces.query
+    print(data)
     return render_template('interface.html',data=data)
 
 @main.route('/init', methods=['POST'])
@@ -351,20 +358,42 @@ def command():
 @main.route('/exfil', methods=['GET', 'POST'])
 @login_required
 def exfil():
+    Server.lock.acquire()
+    current_nodes = Server.nodes
+    Server.lock.release()
     if(request.method == 'POST'):    
-        
+        print("IN EXFIL")
+        node = request.form['node_place']
         data = [request.form['d_can'], request.form['d_arb'], request.form['d_mask'], request.form['d_time']]
-        prepStr = 'timeout ' + data[3] + ' candump ' + data[0] + ',' + data[1] + ':' + data[2] + ' -t A > dump_file'
-        
-        os.system(prepStr)
-        return_data = open('./dump_file', 'r').read()
-        os.system('rm ./dump_file')
+        jsonCopy = jsonTemplates['exfil_dat']
+        print("Gargage-Can> Exfil Template",jsonCopy)
+        jsonCopy['data'] = str(data)
 
-        print(return_data)
-        flash('Capture Executed!')
 
-        return render_template('exfil.html',data=return_data)
-    return render_template('exfil.html')
+        Server.lock.acquire()
+
+        print("Client> Sending: ",json.dumps(jsonCopy))
+    # def send(self,ip,source_port,destination_port,data):
+
+        #get that node ip and port
+        dest_ip = Server.nodes[node][0]
+        source_port = Server.nodes[node][1]
+        print(dest_ip,source_port)
+        print(client_port)
+        print(dest_ip)
+        print(source_port)
+        print(jsonCopy)
+
+        Server.lock.release()
+        #Send message
+        Server.send(Server,dest_ip,source_port,client_port,jsonCopy)
+        Server.recieve(Server,source_port)  
+        #Recieve file
+        file = Server.normal_recieve(Server,source_port)
+        print("The main code",file)
+
+        return render_template('exfil.html',data=file,current_nodes=current_nodes)
+    return render_template('exfil.html',current_nodes=current_nodes)
     
 @main.route('/cant', methods=['GET', 'POST'])
 @login_required
@@ -377,11 +406,51 @@ def cant():
     flash('Ran script ' + request.form['type'])
     return redirect(url_for('main.cant'))
 
+@main.route('/nodes', methods=['GET', 'POST'])
+@login_required
+def node():
+    if(request.method == 'GET'):
+        print("Yes im here  :)")
+        print(type(nodes))
+        data=nodes.query
+        print(data)
+        Server.lock.acquire()
+        print(Server.nodes)
+        current_nodes = Server.nodes
+        Server.lock.release()
+
+        return render_template('nodes.html',current_nodes=current_nodes)
+    
+
+
+
 # Run
 # looping_state = Value('b', False)
 # p = Process(target=canLooping, args=(looping_state,))
 
+
+def start():
+
+
+    print("Garbage> Client port,",client_port)
+    print("Garbage> Server port:",server_port)
+    jsonTemplates = json.load(open("./hive/message_templates.json"))
+    
+    server = Server(server_port,client_port) 
+    server.initalize()
+
+
+    client = Client(server,jsonTemplates)
+    serverThread = Thread(target=server.listening_nodes,args=()) #Wehn you make a thread/process dont have () in the target... that took way too long.
+    # clientThread = Thread(target=client.menu,args=()) #Needs to be a thread not a process otherwise the menu wont work
+    # clientThread.start()
+    serverThread.start()
+    
+    while True:
+       pass
+
 if(__name__ == '__main__'):
     #os.system('initialize.sh')
+    app.run(debug=True,host='0.0.0.0',use_reloader=True,port='7865') #use_reloader=False needed for the child stuff
 
-    app.run(debug=False,host='0.0.0.0',use_reloader=False,port='8000') #use_reloader=False needed for the child stuff
+
