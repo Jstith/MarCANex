@@ -16,3 +16,56 @@ The **Maritime CAN Bus Exploitation** Framework (MarCANex) is a lightweight comm
 - Command and Control for Protocols Offshore (C-2PO) is the custom command and control software for the MarCANex framework.
 - C-2PO includes beaconing functionality, diverse networking options, and end-to-end encryption.
 - C-2PO client and server code utilizes multithreading to support multiple attacks at once.
+
+## Usage
+
+First clone the respository and export the `PYTHONPATH` and `FLASK_APP` variables.
+
+```
+git clone git@github.com:Jstith/MarCANex.git
+export PYTHONPATH="${PYTHONPATH}:<INSTALLATION_DIRECTORY>/MarCANex/Garbage-CAN"
+export FLASK_APP=<INSTALLATION_DIRECTORY>/MarCANex/Garbage-CAN
+```
+
+Then create a symetric key to encrypt beacon communications to and from the C2 server with.
+
+```
+python3
+>>> from cryptography.fernet import Fernet
+>>> key = Fernet.generate_key()
+>>> print(key)
+b'<BASE64_KEY'
+```
+
+Take your key and place it inside of `<INSTALLATION_PATH>/MarCANex/C-2PO/hive/sym.key>`
+
+```
+echo '42BdT-Fq2oIIUHIyE6fb8vkMOHdOSgi38h_TMtYjZi0=' > <INSTALLATION_PATH>/MarCANex/C-2PO/hive/sym.key
+echo '42BdT-Fq2oIIUHIyE6fb8vkMOHdOSgi38h_TMtYjZi0=' > <INSTALLATION_PATH>/MarCANex/C-2PO/beacon/sym.key
+```
+
+Then to start:
+
+```
+flask run
+```
+
+To host the flask application on all interfaces use:
+
+```
+flask run --host=0.0.0.0
+```
+
+The C2 framework will not start until a user succesfully logs.  Deafult credentials are:
+
+```
+ship-happens
+Go Coast Guard!
+```
+
+To test incoming connections for a beacon you can run:
+
+```
+cd <INSTALLATION_PATH>/C-2PO/beacon
+python3 beacon.py --ip <IP_HOSTING_FLASK>
+```
