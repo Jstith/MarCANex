@@ -34,14 +34,14 @@ python3
 >>> from cryptography.fernet import Fernet
 >>> key = Fernet.generate_key()
 >>> print(key)
-b'<BASE64_KEY'
+b'<BASE64_KEY>'
 ```
 
 Take your key and place it inside of `<INSTALLATION_PATH>/MarCANex/C-2PO/hive/sym.key>`
 
 ```
-echo '42BdT-Fq2oIIUHIyE6fb8vkMOHdOSgi38h_TMtYjZi0=' > <INSTALLATION_PATH>/MarCANex/C-2PO/hive/sym.key
-echo '42BdT-Fq2oIIUHIyE6fb8vkMOHdOSgi38h_TMtYjZi0=' > <INSTALLATION_PATH>/MarCANex/C-2PO/beacon/sym.key
+echo '<BASE64_KEY>' > <INSTALLATION_PATH>/MarCANex/C-2PO/hive/sym.key
+echo '<BASE64_KEY>' > <INSTALLATION_PATH>/MarCANex/C-2PO/beacon/sym.key
 ```
 
 Then to start:
@@ -69,3 +69,4 @@ To test incoming connections for a beacon you can run:
 cd <INSTALLATION_PATH>/C-2PO/beacon
 python3 beacon.py --ip <IP_HOSTING_FLASK>
 ```
+At this point you should have able to view your beacon within the CLI or the GUI of the application and are ready to try the real thing!
