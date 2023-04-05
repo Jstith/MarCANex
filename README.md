@@ -44,7 +44,9 @@ echo '<BASE64_KEY>' > <INSTALLATION_PATH>/MarCANex/C-2PO/hive/sym.key
 echo '<BASE64_KEY>' > <INSTALLATION_PATH>/MarCANex/C-2PO/beacon/sym.key
 ```
 
-Then to start:
+Change your orking directory to `MarCANex/Garbage-CAN`, then you're ready to run the app.
+
+To start:
 
 ```
 flask run
