@@ -7,3 +7,8 @@ The MarCANex framework comes with build scripts for its three major functions:
     - Console (CLI only)
     - Web Server and Console
 
+## Beacon Install Script
+
+```
+curl -s https://raw.githubusercontent.com/Jstith/MarCANex/main/INSTALL/build_beacon.sh -o build_beacon.sh && chmod +x build_beacon.sh && ./build_beacon.sh
+```
