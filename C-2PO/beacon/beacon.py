@@ -21,7 +21,7 @@ config = {
     'beacon_timeout' : 10
 }
 
-p = Path(Path(__file__).parents[0], 'sym.key')
+p = Path(Path(__file__).resolve().parents[0], 'sym.key')
 
 ss = SneakySend(p, config['bind_address'], config['listen_port'])
 cs = CanSend()
