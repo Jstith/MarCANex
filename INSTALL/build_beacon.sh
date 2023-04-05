@@ -3,8 +3,17 @@
 function install_remote() {
     echo "installing remote (requires GIT)"
     mkdir -p $install_path
-    git clone git@github.com:Jstith/MarCANex.git $install_path
-    pip3 install -r $install_path/MarCANex/requirements-beacon.txt
+    pushd $install_path
+    git clone git@github.com:Jstith/MarCANex.git
+    pip3 install -r MarCANex/requirements-beacon.txt
+    
+    key=$(python3 -c 'from cryptography.fernet import Fernet; key = Fernet.generate_key(); print(key.decode())')
+    echo $key > $install_path/MarCANex/C-2PO/beacon/sym.key
+    
+    sudo ln -sf $install_path/MarCANex/C-2PO/beacon/beacon.py /usr/bin/c2po-beacon
+    echo "Done! To start the beacon run \"c2po-beacon\""
+    popd
+    exit 0
 }
 
 function install_local() {
