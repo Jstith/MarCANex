@@ -4,7 +4,7 @@ function install_remote() {
     echo "installing remote (requires GIT)"
     mkdir -p $install_path
     pushd $install_path
-    git clone git@github.com:Jstith/MarCANex.git
+    git clone https://github.com/Jstith/MarCANex.git
     pip3 install -r MarCANex/requirements-beacon.txt
     
     key=$(python3 -c 'from cryptography.fernet import Fernet; key = Fernet.generate_key(); print(key.decode())')
