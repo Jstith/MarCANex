@@ -1,10 +1,14 @@
+#!/usr/bin/python3
+
 from termcolor import colored
 from cansend import CanSend
 from sneakysend import SneakySend
+from pathlib import Path
 import time
 import json
 import threading
 import argparse
+import os
 
 config = {
     'initialized' : False,
@@ -17,7 +21,9 @@ config = {
     'beacon_timeout' : 10
 }
 
-ss = SneakySend('sym.key', config['bind_address'], config['listen_port'])
+p = Path(Path(__file__).parents[0], 'sym.key')
+
+ss = SneakySend(p, config['bind_address'], config['listen_port'])
 cs = CanSend()
 
 running_commands = []
