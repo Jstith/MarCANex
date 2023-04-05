@@ -10,7 +10,7 @@ function install_remote() {
     key=$(python3 -c 'from cryptography.fernet import Fernet; key = Fernet.generate_key(); print(key.decode())')
     echo $key > $install_path/MarCANex/C-2PO/beacon/sym.key
     
-    chmod +x $install_path/MarCANex/C-2PO/beacon.beacon.py
+    chmod +x $install_path/MarCANex/C-2PO/beacon/beacon.py
     sudo ln -sf $install_path/MarCANex/C-2PO/beacon/beacon.py /usr/bin/c2po-beacon
     echo "Done! To start the beacon run \"c2po-beacon\""
     popd
