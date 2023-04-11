@@ -7,7 +7,8 @@ function install_remote() {
     git clone https://github.com/Jstith/MarCANex.git
     pip3 install -r MarCANex/requirements-beacon.txt
     
-    key=$(python3 -c 'from cryptography.fernet import Fernet; key = Fernet.generate_key(); print(key.decode())')
+    read -p "Enter sym key: " key
+    #key=$(python3 -c 'from cryptography.fernet import Fernet; key = Fernet.generate_key(); print(key.decode())')
     echo $key > $install_path/MarCANex/C-2PO/beacon/sym.key
     
     chmod +x $install_path/MarCANex/C-2PO/beacon/beacon.py
