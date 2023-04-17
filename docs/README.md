@@ -1,24 +1,55 @@
-# MarCANex Documentation
+---
+description: The starting point
+---
 
-This page is the head of the documentation tree. You can find links to the documentation for all things MarCANex here.
+# Replay Attacks
 
-## Quick Links
+## What is a Replay Attack?
 
-### Garbage-CAN (Web-UI)
+A replay attack broadly refers to a malicious action that involves recording legitimate information going form one place to another, then transmitting that information again at a later time, pretending to be the original source sending it. For example, if a victim sends a username and password to a server, an attacker could record that message, save it, and replay it later to log in on the same server.&#x20;
 
-### C-2PO (Internet C2 Server)
+Despite their simplicity, replay attacks can be quite powerful. If a tool or service is not properly configured to make multiple requests of the same variety somehow different from each other, replay attacks can bypass all sorts of authentication and encryption. Replay attacks are used everywhere from bypassing encrypted authentication to unlocking cars without a key fob.
 
-- Beacon (client)
-- Hive (server)
+## Replay attacks on NMEA 2000
 
-## Overview
+There are a couple of features on NMEA 2000 networks that make replay attacks particularly effective.
 
-**MarCANex** - The *Maritime CAN-Bus Exploitation Framework (MarCANex)* is a collection of tools designed to enable offensive security research on maritime vessels and NMEA 2000 networks. The MarCANex framework consists of the following tools:
+### Lack of Encryption
 
-**Garbage-CAN** - A Python Flask web application where operators can send and receive C2 traffic to infected hosts.
+There is no data encryption on a NMEA 2000 network. That means all data going through the wire can be read and interpreted by any device connected to it (including ours). While a replay attack could be used to send encrypted data as well, the lack of encryption makes it easier for attackers to see and understand what messages they are receiving and sending on the network.
 
-**C-2PO Hive** - The *Command and Control for Protocols Offshore (C-2PO)* backend C2 server that handles communication with C2 clients in the background. The Garbage-CAN webapp integrates natively with Hive, but Hive can also be run stand-alone from the command line.
+### Lack of Authentication
 
-**C-2PO Beacon** - The malicious code that runs on an infected device connected to a NMEA 2000 network that beacons back to the C-2PO Hive. This program was originally build to run on a Raspberry Pi 3 using a PICAN Hat, but hypothetically can run on any device connected to NMEA 2000 networks (currently linux reliant).
+There is no authentication natively included on a NMEA 2000 network. This means that devices receiving data perform no checks or challenges to see where the data is coming from. The only information provided in the data string is an 8 bit source address. But, any device is free to transmit at any source address, and in many cases the source address makes no difference to the device receiving data.
 
-![MarCANex Diagram](./diagram.jpg)
+### Broadcast Protocol
+
+NMEA 2000 networks sit on the CAN-BUS protocol, which is a broadcast-based protocol. This means that messages on the network are sent to every device on the network, rather than to a specific recipient. This feature, while great for ensuring data is delivered with a high degree of accuracy, make it quite easy for attackers to carry out replay attacks. There is no need to worry about what route the data is taking to reach its destination and if those routes have changed since the data was recorded, because every message reaches every device on a CAN-BUS network.
+
+Finally, the nature of CAN-BUS networks dictates that messages transmitted with the highest frequency are usually the ones trusted. This is another feature to protect against data corruption that can be exploited by attackers. If an attacker can transmit a replay a particular type of data more often than the legitimate sensor is transmitting it, other devices on the network will likely use the attacker's replayed data rather than the legitimate data.
+
+## Demonstration
+
+To execute your own replay attack first set up your plant device on the network and initialize the CAN interface. &#x20;
+
+Once your CAN interface is initialized and you can read traffic, start a candump.
+
+```
+candump can0 -l
+```
+
+Now make some kind of change to the vessel state that you'd like to recreate through the execution of the replay attack.  Depending on your vessel this may include things like turning lights on or off, changing the rudder position, or changing the propulsion.
+
+Once you've made your desired changes immediately stop the candump.  It's best practice to avoid capturing unnecessary data when completing a replay attack to try in order to try and isolate only the desired changes. &#x20;
+
+Now reset your vessel back to its original state, before you made any changes to its state.  This is necessary to determine if the replay attack was successful upon execution.
+
+At this point you're ready to replay the log file, which can be done using:
+
+```
+canplayer -I <candump_filename.log>
+```
+
+If your vessel recreates the actions that you performed, then that means your replay attack was successful!
+
+If your vessel did not recreate the desired actions, make sure that what you're looking to recreate involves some form of NMEA2000 communication and that that communication is seen taking place on the bus.
