@@ -1,14 +1,12 @@
-# C-2PO
+# C-2PO: Command and Control for Protocols Offshore
 
-**Command and Control for Protocols Offshore**
-
-New Repo for separate code
+**CURRENLTY UNDER DEVELOPMENT**
 
 ## Beacon Node
 
 ### Install
 
-To install the C2PO Beacon (still in development), begin by updating and installing the necessary packages for python, pip, python virtual environment (venv), and git. The installation steps for Debian based package management is shown below:
+To install the C-2PO Beacon, begin by updating and installing the necessary packages for python, pip, python virtual environment (venv), and git. The installation steps for Debian-based package management is shown below:
 
 ```
 sudo apt update
